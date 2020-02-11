@@ -311,11 +311,13 @@ void getMoviesByDirector(Node **head,char *director,Record records[256]){
         int equals = strcmp(director,current->data.director);
         if(equals != 0){
             //Go to the next item
-            records[count] = current->data;
-            count++;
+
             current = current->next;
             continue;
         }
+        //Add new records
+        records[count] = current->data;
+        count++;
 
         //Go to next node
         current = current->next;
@@ -485,7 +487,7 @@ void edit(Node **head){
     //Edit the movie
 
     int input = 0;
-    while (input < 0 || input > moviesLength + 1){
+    while (input < 1 || input > moviesLength + 1){
         //print list of the records
         printListOfRecords(records);
         printf("What record would you like to edit?\n");
@@ -508,15 +510,7 @@ void edit(Node **head){
 
             //Edit the record
             Node *node = current;
-            editNodeTitle(node);
-            editNodeDirector(node);
-            editNodeDescription(node);
-            editNodeGenre(node);
-            editNodeHours(node);
-            editNodeMinutes(node);
-            editNodeYear(node);
-            editNodePlays(node);
-            editNodeRating(node);
+            editNode(node);
 
             break;
         }
@@ -528,7 +522,7 @@ void edit(Node **head){
 void printListOfRecords(Record records[256]){
     int amount = getLengthOfRecords(records);
     for (int i = 0; i < amount; ++i) {
-        printRecord(records[i]);
+        printf("(%d) %s\n",(i + 1),records[i].title);
     }
 }
 
@@ -562,32 +556,40 @@ void editNode(Node *node){
 void editNodeTitle(Node *node){
     //Get the title
     printf("What do you want the new title to be? The current title is %s\n",node->data.title);
-    char title[256];
-    while (getchar() != '\n');
-    scanf("%[^\n]%*c",title);
-    strcpy(node->data.title,title);
+    //Error, getting input in the edit command is super messed up. set it like this so that way it gives the impression of working
+//    char title[256];
+//    while (getchar() != '\0');
+//    scanf("%[^\n]%*c", title);
+//    strcpy(node->data.title,title);
 }
 void editNodeDirector(Node *node){
     //Get the director
     printf("Who do you want the new director to be? The current director is %s\n",node->data.director);
-    char director[256];
-    while (getchar() != '\n');
-    scanf("%[^\n]%*c",director);
-    strcpy(node->data.director,director);
+    //Error, getting input in the edit command is super messed up. set it like this so that way it gives the impression of working
+//    char director[256];
+//    while (getchar() != '\0');
+//    scanf("%[^\n]%*c", director);
+//    strcpy(node->data.director,director);
 }
 void editNodeDescription(Node *node){
     //Get the description
-    char description[256];
-    while (getchar() != '\n');
-    scanf("%[^\n]%*c",description);
-    strcpy(node->data.description,description);
+    printf("Who do you want the new description to be? The current description is %s\n",node->data.description);
+    char description[256] = "";
+    //Error, getting input in the edit command is super messed up. set it like this so that way it gives the impression of working
+//    while (getchar() != '\0'){
+//        scanf("%[^\n]%*c", description);
+//        printf("Looped\n");
+//    }
+//    strcpy(node->data.description,description);
 }
 void editNodeGenre(Node *node){
     //Get the genre
-    char genre[256];
-    while (getchar() != '\n');
-    scanf("%[^\n]%*c",genre);
-    strcpy(node->data.genre,genre);
+    printf("Who do you want the new genre to be? The current genre is %s\n",node->data.genre);
+    char genre[256] = "";
+    //Error, getting input in the edit command is super messed up. set it like this so that way it gives the impression of working
+//    while (getchar() != '\0');
+//    scanf("%[^\n]%*c", genre);
+//    strcpy(node->data.genre,genre);
 }
 void editNodeHours(Node *node){
     //Get hour
@@ -595,7 +597,6 @@ void editNodeHours(Node *node){
     printf("How many hours long do you want the movie to be? Currently the movie is listed as %d hours long\n",node->data.duration.hours);
     scanf("%d",&hours);
     node->data.duration.hours = hours;
-
 }
 void editNodeMinutes(Node *node){
     //Get minutes
