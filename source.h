@@ -58,6 +58,15 @@ void start();
  */
 void menu(Node **head);
 
+/**
+ * Returns a linked list of all the movies linked to a director
+ */
+void getMoviesByDirector(Node **head,char *director,Record records[256]);
+
+void setRecordsToDefault(Record records[256]);
+int getLengthOfRecords(Record records[256]);
+void printListOfRecords(Record records[256]);
+
 void displayMenu();
 
 /**
@@ -137,14 +146,23 @@ void edit(Node **head);
 /**
  * Used to edit all the attributes of a specific record via user input.
  */
-Record editNode(Node *node);
+void editNode(Node *node);
+void editNodeTitle(Node *node);
+void editNodeDirector(Node *node);
+void editNodeDescription(Node *node);
+void editNodeGenre(Node *node);
+void editNodeHours(Node *node);
+void editNodeMinutes(Node *node);
+void editNodeYear(Node *node);
+void editNodePlays(Node *node);
+void editNodeRating(Node *node);
 
 /**
  * o What must “rate” do?
     The “rate” command must allow the user to assign a value of 1 – 5 to a movie; 1 is the
     lowest rating and 5 is the highest rating. The rating will replace the previous rating.
  */
-void rate();
+void rate(Node **head);
 /**
  * o What must “play” do?
     The “play” command must allow the user to select a movie and must start “playing”
@@ -153,7 +171,13 @@ void rate();
     period of time, clearing the screen and showing the next record in the list, etc. This
     continues until all movies have been played.
  */
-void play();
+void play(Node **head);
+
+/**
+ * Plays through the list starting at a node
+ */
+void playNode(Node *node);
+
 /**
  * o What must “exit” do?
     The “exit” command saves the most recent list to the moviePlayList.csv file.

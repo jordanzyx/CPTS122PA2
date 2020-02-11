@@ -43,8 +43,8 @@ void menu(Node **head){
         if(choice == 5)continue;
         if(choice == 6)edit(head);
         if(choice == 7)continue;
-        if(choice == 8)rate();
-        if(choice == 9)play();
+        if(choice == 8)rate(head);
+        if(choice == 9)play(head);
         if(choice == 10)continue;
         if(choice == 11)exitCommand(head);
     }
@@ -291,7 +291,37 @@ void writeRecordToFile(Record record,FILE *output){
             record.year,record.plays,record.rating);
 }
 
+/**
+ * Returns a linked list of all the movies linked to a director
+ */
+void getMoviesByDirector(Node **head,char *director,Record records[256]){
+    //Get head node
+    Node *current = *head;
 
+    //If the list is empty return the empty array
+    if(current == NULL){
+        return;
+    }
+
+    int count = 0;
+
+    //Loop through the list and collect all the records by the director
+    while (current != NULL){
+        //Compare
+        int equals = strcmp(director,current->data.director);
+        if(equals != 0){
+            //Go to the next item
+            records[count] = current->data;
+            count++;
+            current = current->next;
+            continue;
+        }
+
+        //Go to next node
+        current = current->next;
+    }
+
+}
 
 /**
  * o What must “display” do?
@@ -421,7 +451,188 @@ void printListYear(Node **head){
     the user which one to edit. The user may modify all of the attributes in the record.
  */
 void edit(Node **head){
-    printf("What is the name of the record you would like to edit?\n");
+    printf("What is the name of the director who's record you would like to edit?\n");
+    char director[256];
+    while (getchar() != '\n');
+    scanf("%[^\n]%*c",director);
+
+    Node *current = *head;
+    if(current == NULL){
+        printf("Sorry this list is empty\n");
+        return;
+    }
+
+    printf("%s\n",director);
+    
+    //Create a list of records to work with
+    Record records[256];
+    setRecordsToDefault(records);
+
+    //get the movies
+    getMoviesByDirector(head,director,records);
+
+    //get the amount of movies found
+    int moviesLength = getLengthOfRecords(records);
+
+    printf("We found %d records\n",moviesLength);
+
+    //If there was none found let the user know
+    if(moviesLength == 0){
+        printf("We found now movies by that director\n");
+        return;
+    }
+
+    //Edit the movie
+
+    int input = 0;
+    while (input < 0 || input > moviesLength + 1){
+        //print list of the records
+        printListOfRecords(records);
+        printf("What record would you like to edit?\n");
+        scanf("%d",&input);
+
+        //Get rid of invalid input
+        if(input < 0 || input > moviesLength + 1)continue;
+
+        char *title = records[input - 1].title;
+        while(current != NULL){
+            //Check if the node matches the user input
+            int equals = strcmp(current->data.title,title);
+
+            //If it doesn't equal go to the next record
+            if(equals != 0){
+
+                current = current->next;
+                continue;
+            }
+
+            //Edit the record
+            Node *node = current;
+            editNodeTitle(node);
+            editNodeDirector(node);
+            editNodeDescription(node);
+            editNodeGenre(node);
+            editNodeHours(node);
+            editNodeMinutes(node);
+            editNodeYear(node);
+            editNodePlays(node);
+            editNodeRating(node);
+
+            break;
+        }
+    }
+
+    printf("At the end\n");
+}
+
+void printListOfRecords(Record records[256]){
+    int amount = getLengthOfRecords(records);
+    for (int i = 0; i < amount; ++i) {
+        printRecord(records[i]);
+    }
+}
+
+void setRecordsToDefault(Record records[256]){
+    for (int i = 0; i < 256; ++i) {
+       records[i].title[0] = '\n';
+    }
+}
+int getLengthOfRecords(Record records[256]){
+    for (int i = 0; i < 256; ++i) {
+        if(records[i].title[0] == '\n')return i;
+    }
+    return -1;
+}
+
+/**
+ * Used to edit all the attributes of a specific record via user input.
+ */
+void editNode(Node *node){
+    editNodeTitle(node);
+    editNodeDirector(node);
+    editNodeDescription(node);
+    editNodeGenre(node);
+    editNodeHours(node);
+    editNodeMinutes(node);
+    editNodeYear(node);
+    editNodePlays(node);
+    editNodeRating(node);
+}
+
+void editNodeTitle(Node *node){
+    //Get the title
+    printf("What do you want the new title to be? The current title is %s\n",node->data.title);
+    char title[256];
+    while (getchar() != '\n');
+    scanf("%[^\n]%*c",title);
+    strcpy(node->data.title,title);
+}
+void editNodeDirector(Node *node){
+    //Get the director
+    printf("Who do you want the new director to be? The current director is %s\n",node->data.director);
+    char director[256];
+    while (getchar() != '\n');
+    scanf("%[^\n]%*c",director);
+    strcpy(node->data.director,director);
+}
+void editNodeDescription(Node *node){
+    //Get the description
+    char description[256];
+    while (getchar() != '\n');
+    scanf("%[^\n]%*c",description);
+    strcpy(node->data.description,description);
+}
+void editNodeGenre(Node *node){
+    //Get the genre
+    char genre[256];
+    while (getchar() != '\n');
+    scanf("%[^\n]%*c",genre);
+    strcpy(node->data.genre,genre);
+}
+void editNodeHours(Node *node){
+    //Get hour
+    int hours = 0;
+    printf("How many hours long do you want the movie to be? Currently the movie is listed as %d hours long\n",node->data.duration.hours);
+    scanf("%d",&hours);
+    node->data.duration.hours = hours;
+
+}
+void editNodeMinutes(Node *node){
+    //Get minutes
+    int minutes = 0;
+    printf("How many minutes do you want the movie to be? Currently the movie is listed as %d minutes long\n",node->data.duration.minutes);
+    scanf("%d",&minutes);
+    node->data.duration.minutes = minutes;
+}
+void editNodeYear(Node *node){
+    //Get year
+    int year;
+    printf("What year do you want the movie to be stored under? Currently the movie is listed as releasing in %d\n",node->data.year);
+    scanf("%d",&year);
+    node->data.year = year;
+}
+void editNodePlays(Node *node){
+    //Get plays
+    int plays;
+    printf("How many plays do you want the movie to have? Currently the movie has %d plays\n",node->data.plays);
+    scanf("%d",&plays);
+    node->data.plays = plays;
+}
+void editNodeRating(Node *node){
+    //Get rating
+    int rating;
+    printf("What do you want the rating for this movie to be? Currently the movie is has a rating of %d\n",node->data.rating);
+    scanf("%d",&rating);
+    node->data.rating = rating;
+}
+
+/**
+ * o What must “rate” do?
+    The “rate” command must allow the user to assign a value of 1 – 5 to a movie; 1 is the
+    lowest rating and 5 is the highest rating. The rating will replace the previous rating.
+ */
+void rate(Node **head){
+    printf("What is the name of the record you would like to rate?\n");
     char title[256];
     while (getchar() != '\n');
     scanf("%[^\n]%*c",title);
@@ -440,87 +651,31 @@ void edit(Node **head){
 
         //If it doesn't equal go to the next record
         if(equals != 0){
-
             current = current->next;
             continue;
         }
 
         //Edit the record
         found = 1;
-        editNode(current);
+
+        //Get new rating
+        int rating = 0;
+        while (rating < 1 || rating > 5){
+            printf("What do you want the new rating to be [1-5]?\n");
+            scanf("%d",&rating);
+        }
+
+        //Update rating
+        current->data.rating = rating;
+
+        //Inform user of success
+        printf("The record's rating was successfully updated to %d\n",rating);
 
         break;
     }
 
+    //Inform the user that we couldn't find the movie
     if(found == -1)printf("We could not find a movie with that name\n");
-}
-
-/**
- * Used to edit all the attributes of a specific record via user input.
- */
-Record editNode(Node *node){
-    //Get the title
-    printf("What do you want the new title to be? The current title is %s\n",node->data.title);
-    char title[256];
-    while (getchar() != '\n');
-    scanf("%[^\n]%*c",title);
-    strcpy(node->data.title,title);
-
-    //Get the director
-    printf("Who do you want the new director to be? The current director is %s\n",node->data.director);
-    char director[256];
-    while (getchar() != '\n');
-    scanf("%[^\n]%*c",director);
-    strcpy(node->data.director,director);
-
-    //Get the description
-    char description[256];
-    while (getchar() != '\n');
-    scanf("%[^\n]%*c",description);
-    strcpy(node->data.description,description);
-
-    //Get the genre
-    char genre[256];
-    while (getchar() != '\n');
-    scanf("%[^\n]%*c",genre);
-    strcpy(node->data.genre,genre);
-
-    //Get duration
-    int hours = 0,minutes = 0;
-    printf("How many hours long do you want the movie to be? Currently the movie is listed as %d hours long\n",node->data.duration.hours);
-    scanf("%d",&hours);
-    printf("How many minutes do you want the movie to be? Currently the movie is listed as %d minutes long\n",node->data.duration.minutes);
-    scanf("%d",&minutes);
-    node->data.duration.hours = hours;
-    node->data.duration.minutes = minutes;
-
-    //Get year
-    int year;
-    printf("What year do you want the movie to be stored under? Currently the movie is listed as releasing in %d\n",node->data.year);
-    scanf("%d",&year);
-    node->data.year = year;
-
-    //Get plays
-    int plays;
-    printf("How many plays do you want the movie to have? Currently the movie has %d plays\n",node->data.plays);
-    scanf("%d",&plays);
-    node->data.plays = plays;
-
-    //Get rating
-    int rating;
-    printf("What do you want the rating for this movie to be? Currently the movie is has a rating of %d\n",node->data.rating);
-    scanf("%d",&rating);
-    node->data.rating = rating;
-
-    return node->data;
-}
-/**
- * o What must “rate” do?
-    The “rate” command must allow the user to assign a value of 1 – 5 to a movie; 1 is the
-    lowest rating and 5 is the highest rating. The rating will replace the previous rating.
- */
-void rate(){
-
 }
 /**
  * o What must “play” do?
@@ -530,8 +685,57 @@ void rate(){
     period of time, clearing the screen and showing the next record in the list, etc. This
     continues until all movies have been played.
  */
-void play(){
+void play(Node **head){
+    printf("What is the name of the record you would like to play?\n");
+    char title[256];
+    while (getchar() != '\n');
+    scanf("%[^\n]%*c",title);
 
+    Node *current = *head;
+    if(current == NULL){
+        printf("Sorry this list is empty\n");
+        return;
+    }
+
+    int found = -1;
+
+    while(current != NULL){
+        //Check if the node matches the user input
+        int equals = strcmp(current->data.title,title);
+
+        //If it doesn't equal go to the next record
+        if(equals != 0){
+            current = current->next;
+            continue;
+        }
+
+        //Edit the record
+        found = 1;
+        playNode(current);
+
+        break;
+    }
+
+    //Inform the user that we couldn't find the movie
+    if(found == -1)printf("We could not find a movie with that name\n");
+}
+
+/**
+ * Plays through the list starting at a node
+ */
+void playNode(Node *node){
+    //Display the record
+    printRecord(node->data);
+
+    //Increase plays
+    node->data.plays = node->data.plays + 1;
+
+    //Wait 5 seconds and clear the screen
+    _sleep(5000);
+    system("cls");
+
+    //Try to go to the next record
+    if(node->next != NULL)playNode(node->next);
 }
 
 /**
