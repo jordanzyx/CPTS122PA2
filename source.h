@@ -132,7 +132,13 @@ void printListYear(Node **head);
     there are multiple records with the same director, then your program must prompt
     the user which one to edit. The user may modify all of the attributes in the record.
  */
-void edit();
+void edit(Node **head);
+
+/**
+ * Used to edit all the attributes of a specific record via user input.
+ */
+Record editNode(Node *node);
+
 /**
  * o What must “rate” do?
     The “rate” command must allow the user to assign a value of 1 – 5 to a movie; 1 is the
