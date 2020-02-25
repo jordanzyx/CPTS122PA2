@@ -1,9 +1,14 @@
-//
-// Created by Jordan on 2/8/2020.
-//
+/*******************************************************************************************
+* Programmer: Jordan Muehlbayer *
+* Class: CptS 122, Spring, 2019;
+* Programming Assignment: PA2 *
+* Date: Febuary 10th, 2020 *
+* Description: Implements methods to be used in main to run the movie player. Methods are from source.h
+*******************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "source.h"
 
 /**
@@ -27,7 +32,8 @@ void menu(Node **head){
         displayMenu();
 
         //Collect input
-        scanf("%d",&choice);
+        scanf(" %d",&choice);
+        getchar();
 
         //Get rid of invalid inputs
         if(choice < 1 || choice > 11){
@@ -35,17 +41,18 @@ void menu(Node **head){
             continue;
         }
 
+
         //Handle valid input
         if(choice == 1)load(head);
         if(choice == 2)store(head);
         if(choice == 3)display(head);
-        if(choice == 4)continue;
-        if(choice == 5)continue;
+        if(choice == 4)insert(head);
+        if(choice == 5)delete(head);
         if(choice == 6)edit(head);
         if(choice == 7)continue;
         if(choice == 8)rate(head);
         if(choice == 9)play(head);
-        if(choice == 10)continue;
+        if(choice == 10)shuffle(head);
         if(choice == 11)exitCommand(head);
     }
 }
@@ -746,4 +753,382 @@ void playNode(Node *node){
  */
 void exitCommand(Node **head){
     store(head);
+}
+
+/**
+ * • 17 pts – Correct “insert” command implementation
+    o (7 pts - 1pt/attribute) For prompting and getting the details of
+    a new record from the user
+    o (10 pts) For correctly inserting the record at the front of the list
+ * @param head
+ */
+void insert(Node **head){
+
+    Record newRecord = {""};
+    printf("What would you like the title to be?\n");
+    fgets(newRecord.title,256,stdin);
+
+    printf("Who is the director?\n");
+    fgets(newRecord.director,256,stdin);
+
+    printf("What is the description?\n");
+    fgets(newRecord.description,256,stdin);
+
+    printf("What is the genre?\n");
+    fgets(newRecord.genre,256,stdin);
+
+    printf("How many hours are there? and how many minutes\n");
+    scanf("%d %d",&newRecord.duration.hours,&newRecord.duration.minutes);
+
+    printf("What year was this movie made in?\n");
+    scanf("%d",&newRecord.year);
+
+    printf("How many plays does this record have?\n");
+    scanf("%d",&newRecord.plays);
+
+    printf("What is the rating of this film? \n");
+    scanf("%d",&newRecord.rating);
+
+
+    //Validate information, and insert
+    insertRecord(head,newRecord);
+}
+
+void insertRecord(Node **head,Record newRecord){
+
+    if(newRecord.rating > 5)newRecord.rating = 5;
+    if(newRecord.rating < 1)newRecord.rating = 1;
+
+    if(newRecord.plays < 0)newRecord.plays = 1;
+
+    insertFront(head,newRecord);
+}
+
+/**
+ * • 23 pts – For correct “delete” command implementation
+    o (3 pts) For prompting and getting the movie title from the user
+    o (5 pts) For searching for specific record matching the movie title
+    o (15 pts) For removing the matching record from the list, and
+    reconnecting the list correctly
+ * @param head
+ */
+void delete(Node **head){
+    char title[256] = "";
+
+    printf("What movie would you like to delete?\n");
+    fgets(title,256,stdin);
+
+    deleteByName(head,title);
+}
+
+void deleteByName(Node **head,char title[256]){
+    Node *current = *head;
+    Node *previous = NULL;
+
+    while (current != NULL){
+        //Check if the current node matches names with the title to delete
+        int equals = strcmp(current->data.title,title);
+
+        //Delete if equal
+        if(equals == 0){
+            printf("Removing the movie %s\n",current->data.title);
+
+            //Reconstruct the list
+            if(previous != NULL)previous->next = current->next;
+            if(current->next != NULL)current->next->previous = previous;
+
+            //Remove current
+            free(current);
+            return;
+        }
+
+        //Advance the nodes
+        previous = current;
+        current = current->next;
+    }
+
+    printf("We could not find a movie by that name!\n");
+}
+
+/**
+ * 15 pts – Correct “shuffle” command implementation
+    o (5 pts) For generating the random order based on the number of movies
+    in the list
+    o (10 pts) For moving through the list (forwards and backwards) and
+    playing the movies in the order generated
+ * @param head
+ */
+void shuffle(Node **head){
+    //Get length
+    int length = getLengthOfList(head);
+
+
+    //Create an array of indexes to store the order of playing
+    int *order = malloc(sizeof(int) * length);
+
+    //Set all of the indexes to -1 before shuffling
+    for (int j = 0; j < length; ++j) {
+        order[j] = -1;
+    }
+
+    //Create a random order
+    for (int i = 0; i < length; ++i) {
+        int look = 1;
+        int index = -1;
+
+        while (look == 1){
+            //Generate a new random index
+            index = rand() % length;
+            printf("%d\n",index);
+
+            //Go through the list and check if it is used yet
+            int c = -1;
+            for (int j = 0; j < length; ++j) {
+                if(order[j] == index)c = 1;
+            }
+
+            if(c == -1){
+                look = -1;
+            }
+        }
+
+        //Add the index to the order
+        order[i] = index;
+    }
+
+    int index = 0;
+    Node *current = *head;
+    for (int k = 0; k < length; ++k) {
+
+        int goal = order[k];
+
+        //Traverse through the list
+        while (index != goal){
+            //Go backwards
+            if(index < goal){
+                index++;
+                current = current->next;
+            }
+            //Go forwards
+            if(index > goal){
+                index--;
+                current = current->previous;
+            }
+        }
+
+        //Display the record
+        printRecord(current->data);
+
+        //Increase plays
+        current->data.plays = current->data.plays + 1;
+
+        //Wait 5 seconds and clear the screen
+        _sleep(5000);
+        system("cls");
+    }
+
+    free(order);
+
+
+}
+
+int getLengthOfList(Node **head){
+    Node *current = *head;
+    int size = 0;
+    while (current != NULL){
+        size += 1;
+        current = current -> next;
+    }
+
+    return size;
+}
+/**
+ * o For the insert test function you must provide a test case with the following
+    test point: movie title = “Bohemian Rhapsody”, director = “Bryan
+    Singer”, description= “Freddie Mercury the lead singer of Queen defies
+    stereotypes and convention to become one of history's most beloved
+    entertainers.”, genre = “Drama”, running time = “2:13”, year = 2018,
+    times played = -1, rating = 6. You must think about what is your
+    expected result? Should you able to insert a movie with -1 times played?
+    Should you able to add a movie with rating 6? Is the head pointer of the
+    list updated?
+
+ * @param head
+ * @return
+ */
+int testInsert(){
+    Record testInsert = {"Bohemian Rhaspody",
+                         "Bryan Singer",
+                         "Freddie Mercury the lead singer of Queen defies stereotypes and convention to become one of history's most beloved entertainers.",
+                         "Drama",
+                         {2,13},
+                         2018,
+                         -1,
+                         6};
+    Node *head = NULL;
+    insertRecord(&head,testInsert);
+    Node *front = head;
+
+
+
+    //Check if the record was inserted at the front and if the rating was fixed and the times played was fixed
+    if(front == NULL)return -1;
+    if(front->data.plays == -1)return -1;
+    if(front->data.rating == 6)return -1;
+
+
+    return 1;
+}
+
+/**
+ * o For the delete test function you must provide a test case with the
+    following test point: movie title = “Bohemian Rhapsody”, director =
+    “Bryan Singer”, description= “Freddie Mercury the lead singer of Queen
+    defies stereotypes and convention to become one of history's most
+    beloved entertainers.”, genre = “Drama”, running time = “2:13”, year =
+    2018, times played = -1, rating = 6. You must think about what is your
+    expected result? Has the head pointer been updated? Is it NULL? Did the
+    memory get released?
+ * @return
+ */
+int testDelete(){
+    Record testInsert = {"Bohemian Rhaspody",
+                         "Bryan Singer",
+                         "Freddie Mercury the lead singer of Queen defies stereotypes and convention to become one of history's most beloved entertainers.",
+                         "Drama",
+                         {2,13},
+                         2018,
+                         -1,
+                         6};
+
+    Node *head = NULL;
+    insertRecord(&head,testInsert);
+    deleteByName(&head,"Bohemian Rhaspody");
+
+    //I expect for the item to be deleted and for the head to be null.
+    if(head == NULL)return -1;
+
+    return 1;
+}
+/**
+ * o For the shuffle test function you must provide a test case with the
+    following test point: list the play order that was randomly generated and
+    list the movies.
+    Example: play order = 3, 1, 2. List state = you provide 3 movies. Does
+    the shuffle play in the correct order?
+
+ * @return
+ */
+int testShuffle(){
+
+    Record record1 = {"Bohemian Rhaspody",
+                         "Bryan Singer",
+                         "Freddie Mercury the lead singer of Queen defies stereotypes and convention to become one of history's most beloved entertainers.",
+                         "Drama",
+                         {2,13},
+                         2018,
+                         -1,
+                         6};
+
+    Record record2 = {"Sing About Me, I'm Dying of Thirst",
+                      "Kendrick Lamar",
+                      "The boys are dying of thirst lol",
+                      "Rap",
+                      {0,5},
+                      2012,
+                      100,
+                      5};
+
+    Record record3 = {"I wish",
+                      "Skee-lo",
+                      "He just wishes he was a baller who was a little bit taller",
+                      "Old Rap",
+                      {0,4},
+                      1995,
+                      103,
+                      4};
+
+
+    Node *head = NULL;
+    insertRecord(&head,record1);
+    insertRecord(&head,record2);
+    insertRecord(&head,record3);
+
+    //Function body
+    int length = getLengthOfList(&head);
+
+
+    //Create an array of indexes to store the order of playing
+    int *order = malloc(sizeof(int) * length);
+
+    //Set all of the indexes to -1 before shuffling
+    for (int j = 0; j < length; ++j) {
+        order[j] = -1;
+    }
+
+    //Create a random order
+    for (int i = 0; i < length; ++i) {
+        int look = 1;
+        int index = -1;
+
+        while (look == 1){
+            //Generate a new random index
+            index = rand() % length;
+
+            //Go through the list and check if it is used yet
+            int c = -1;
+            for (int j = 0; j < length; ++j) {
+                if(order[j] == index)c = 1;
+            }
+
+            if(c == -1){
+                look = -1;
+            }
+        }
+
+        //Add the index to the order
+        order[i] = index;
+    }
+
+    int index = 0;
+    Node *current = head;
+    for (int k = 0; k < length; ++k) {
+
+        int goal = order[k];
+
+        //Traverse through the list
+        while (index != goal){
+            //Go backwards
+            if(index < goal){
+                index++;
+                current = current->next;
+            }
+            //Go forwards
+            if(index > goal){
+                index--;
+                current = current->previous;
+            }
+        }
+
+        //Check if it is indeed playing in the correct order
+        if(goal != index)return -1;
+
+        //Display the record, dont do this because its just a test
+      //  printRecord(current->data);
+
+        //Increase plays
+        current->data.plays = current->data.plays + 1;
+
+        //Wait 5 seconds and clear the screen, Dont do this because it is just a test
+      //  _sleep(5000);
+      //  system("cls");
+    }
+
+    free(order);
+
+    //All the indexes worked so return 1 to indicate we passed.
+
+
+
+    return 1;
 }

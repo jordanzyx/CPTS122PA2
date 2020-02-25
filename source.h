@@ -1,7 +1,10 @@
-//
-// Created by Jordan on 2/8/2020.
-//
-
+/*******************************************************************************************
+* Programmer: Jordan Muehlbayer *
+* Class: CptS 122, Spring, 2019;
+* Programming Assignment: PA2 *
+* Date: Febuary 10th, 2020 *
+* Description: This file is an outline of methods needed for the movie player. Implemented in source.c
+*******************************************************************************************/
 #ifndef CPTS122PA1_SOURCE_H
 #define CPTS122PA1_SOURCE_H
 
@@ -172,6 +175,33 @@ void rate(Node **head);
     continues until all movies have been played.
  */
 void play(Node **head);
+/**
+ * • 17 pts – Correct “insert” command implementation
+    o (7 pts - 1pt/attribute) For prompting and getting the details of
+    a new record from the user
+    o (10 pts) For correctly inserting the record at the front of the list
+ * @param head
+ */
+void insert(Node **head);
+/**
+ * • 23 pts – For correct “delete” command implementation
+    o (3 pts) For prompting and getting the movie title from the user
+    o (5 pts) For searching for specific record matching the movie title
+    o (15 pts) For removing the matching record from the list, and
+    reconnecting the list correctly
+ * @param head
+ */
+void delete(Node **head);
+void deleteByName(Node **head,char title[256]);
+/**
+ * 15 pts – Correct “shuffle” command implementation
+    o (5 pts) For generating the random order based on the number of movies
+    in the list
+    o (10 pts) For moving through the list (forwards and backwards) and
+    playing the movies in the order generated
+ * @param head
+ */
+void shuffle(Node **head);
 
 /**
  * Plays through the list starting at a node
@@ -184,5 +214,15 @@ void playNode(Node *node);
     This command will completely overwrite the previous contents in the file.
  */
 void exitCommand(Node **head);
+
+void insertRecord(Node **head,Record newRecord);
+
+int testInsert();
+
+int testDelete();
+
+int testShuffle();
+
+int getLengthOfList(Node **head);
 
 #endif //CPTS122PA1_SOURCE_H
