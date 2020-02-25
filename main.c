@@ -1,8 +1,8 @@
 
 /*******************************************************************************************
-* Programmer: Jordan Muehlbayer *
+* Programmer: Jordan Muehlbauer *
 * Class: CptS 122, Spring, 2019;
-* Programming Assignment: PA2 *
+* Programming Assignment: PA3 *
 * Date: Febuary 10th, 2020 *
 * Description: This program is a prototype movie player. *
 *******************************************************************************************/
@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "source.h"
+#include "tests.h"
 int main() {
     srand(time(NULL));
 

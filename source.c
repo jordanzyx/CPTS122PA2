@@ -1,15 +1,16 @@
 /*******************************************************************************************
-* Programmer: Jordan Muehlbayer *
+* Programmer: Jordan Muehlbauer *
 * Class: CptS 122, Spring, 2019;
-* Programming Assignment: PA2 *
-* Date: Febuary 10th, 2020 *
-* Description: Implements methods to be used in main to run the movie player. Methods are from source.h
+* Programming Assignment: PA3 *
+* Date: Febuary 24th, 2020 *
+* Description: Implements methods to be used in main to run the movie player. Methods are from source.h and tests.h
 *******************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include "source.h"
+#include "tests.h"
 
 /**
  * Starts up the program and should be the only method called in main
@@ -817,6 +818,7 @@ void delete(Node **head){
 
     printf("What movie would you like to delete?\n");
     fgets(title,256,stdin);
+    fixString(title);
 
     deleteByName(head,title);
 }
@@ -1131,4 +1133,15 @@ int testShuffle(){
 
 
     return 1;
+}
+
+//Removes the newline character at the end of strings
+void fixString(char string[256]){
+    int length = strlen(string);
+
+    char item = string[length - 1];
+
+    if(item == '\n'){
+        string[length - 1] = '\0';
+    }
 }

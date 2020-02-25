@@ -217,11 +217,7 @@ void exitCommand(Node **head);
 
 void insertRecord(Node **head,Record newRecord);
 
-int testInsert();
-
-int testDelete();
-
-int testShuffle();
+void fixString(char string[256]);
 
 int getLengthOfList(Node **head);
 
